@@ -171,6 +171,8 @@ impl<T: Config> Pallet<T> {
 			Self::make_payout(&ledger.stash, validator_staking_payout + validator_commission_payout)
 		{
 			Self::deposit_event(Event::<T>::Rewarded(ledger.stash, imbalance.peek()));
+			// CHANGES: Reward will transferred from treasury rather than minting
+			T::Reward::on_unbalanced(imbalance);
 		}
 
 		// Track the number of payout ops to nominators. Note:
@@ -190,6 +192,8 @@ impl<T: Config> Pallet<T> {
 				// Note: this logic does not count payouts for `RewardDestination::None`.
 				nominator_payout_count += 1;
 				let e = Event::<T>::Rewarded(nominator.who.clone(), imbalance.peek());
+				// CHANGES: Reward will transferred from treasury rather than minting
+				T::Reward::on_unbalanced(imbalance);
 				Self::deposit_event(e);
 			}
 		}
@@ -380,7 +384,8 @@ impl<T: Config> Pallet<T> {
 
 			// Set ending era reward.
 			<ErasValidatorReward<T>>::insert(&active_era.index, validator_payout);
-			T::RewardRemainder::on_unbalanced(T::Currency::issue(rest));
+			// CHANGES: Removed this as we are rewarding from Treasury, not minting the token 
+			// T::RewardRemainder::on_unbalanced(T::Currency::issue(rest));
 
 			// Clear offending validators.
 			<OffendingValidators<T>>::kill();
