@@ -172,7 +172,7 @@ impl<T: Config> Pallet<T> {
 		{
 			Self::deposit_event(Event::<T>::Rewarded(ledger.stash, imbalance.peek()));
 			// CHANGES: Reward will transferred from treasury rather than minting
-			T::Reward::on_unbalanced(imbalance);
+			T::Reward::on_nonzero_unbalanced(imbalance);
 		}
 
 		// Track the number of payout ops to nominators. Note:
@@ -193,7 +193,7 @@ impl<T: Config> Pallet<T> {
 				nominator_payout_count += 1;
 				let e = Event::<T>::Rewarded(nominator.who.clone(), imbalance.peek());
 				// CHANGES: Reward will transferred from treasury rather than minting
-				T::Reward::on_unbalanced(imbalance);
+				T::Reward::on_nonzero_unbalanced(imbalance);
 				Self::deposit_event(e);
 			}
 		}
